@@ -18,6 +18,7 @@ from glob import glob
 import torch
 from PIL import Image
 
+from collections import OrderedDict
 from monai import config
 from monai.data import ArrayDataset, create_test_image_2d, decollate_batch, DataLoader
 from monai.inferers import sliding_window_inference
@@ -168,7 +169,13 @@ def main(data_dir, model_dir, output_dir, X20_dir, X20_patch_dir, get_X20_wsi, g
             num_res_units=2,
         )
 
-        model.load_state_dict(torch.load(glob(os.path.join(model_dir, '*.pth'))[0], map_location=torch.device('cpu')))
+        state_dict = torch.load(glob(os.path.join(model_dir, '*.pth')))[0]
+        new_state_dict = OrderedDict()
+        for k, v in state_dict.items():
+            name = k[7:] # remove module.
+            new_state_dict[name] = v
+
+        model.load_state_dict(new_state_dict, map_location=torch.device('cpu'))
         model.to(device)
         model.eval()
         with torch.no_grad():

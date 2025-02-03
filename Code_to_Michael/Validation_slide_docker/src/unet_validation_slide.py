@@ -144,7 +144,7 @@ def main(data_dir, model_dir, output_dir, X20_dir, X20_patch_dir, get_X20_wsi, g
                     os.makedirs(now_folder)
                 imageio.imwrite(os.path.join(now_folder, '%s_%s_%d_%d_%d_img.png' % (root_list[-2], root_list[-1], cnt, now_x, now_y)), now_patch)
                 cnt+=1
-
+        print("Downscaling and patching complete.")
     if get_X20_patch_preds:
         patch_dir = os.path.join(X20_patch_dir)
     
@@ -191,6 +191,7 @@ def main(data_dir, model_dir, output_dir, X20_dir, X20_patch_dir, get_X20_wsi, g
                 val_images = outputrans(val_images[0]).unsqueeze(0)
                 val_outputs = outputrans(val_outputs)
                 cnt = save_validate(val_images, val_outputs, output_dir, images, cnt)
+                print(cnt, " at val_data in val_loader")
 
 
     if get_X20_wsi_preds:

@@ -169,7 +169,7 @@ def main(data_dir, model_dir, output_dir, X20_dir, X20_patch_dir, get_X20_wsi, g
             num_res_units=2,
         )
 
-        model_file = glob('**/*.pth', recursive=True)[0]
+        model_file = glob('/home/VANDERBILT/tungm1/Desktop/model/mask2former_swin_b_kpis_768_best_mDice.pth')[0]
         print("Model loaded from: ", model_file, "\n")
         state_dict = torch.load(model_file, map_location=torch.device('cpu'))
         new_state_dict = OrderedDict()

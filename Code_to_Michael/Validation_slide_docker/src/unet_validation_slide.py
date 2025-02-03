@@ -169,8 +169,9 @@ def main(data_dir, model_dir, output_dir, X20_dir, X20_patch_dir, get_X20_wsi, g
             num_res_units=2,
         )
 
-        print("Model loaded from: ", glob(os.path.join(model_dir, '*.pth'))[0], "\n")
-        state_dict = torch.load(glob(os.path.join(model_dir, '*.pth'))[0], map_location=torch.device('cpu'))
+        model_file = glob('*.pth')[0]
+        print("Model loaded from: ", model_file, "\n")
+        state_dict = torch.load(model_file, map_location=torch.device('cpu'))
         new_state_dict = OrderedDict()
         for k, v in state_dict.items():
             print(k, "\n")

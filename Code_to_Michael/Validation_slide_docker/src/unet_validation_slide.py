@@ -138,14 +138,14 @@ def main(data_dir, model_dir, output_dir, X20_dir, X20_patch_dir, get_X20_wsi, g
                 assert now_patch.shape == (patch_size, patch_size, 3)
 
                 root_list = os.path.dirname(image_path).split('/')
-                now_folder = os.path.join(X20_patch_dir,  root_list[-2], os.path.basename(image_path).replace('_wsi.tiff',''), root_list[-1])
+                now_folder = os.path.join(X20_patch_dir)
                 if not os.path.exists(now_folder):
                     os.makedirs(now_folder)
                 imageio.imwrite(os.path.join(now_folder, '%s_%s_%d_%d_%d_img.png' % (root_list[-2], root_list[-1], cnt, now_x, now_y)), now_patch)
                 cnt+=1
 
     if get_X20_patch_preds:
-        patch_dir = os.path.join(X20_patch_dir, os.path.basename(image_path).replace('_wsi.tiff', ''))
+        patch_dir = os.path.join(X20_patch_dir)
     
         # Grab all patch images from that single folder
         images = sorted(glob(os.path.join(patch_dir, '*_img.png')))

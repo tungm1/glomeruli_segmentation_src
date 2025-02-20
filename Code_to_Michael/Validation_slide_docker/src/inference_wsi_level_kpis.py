@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+import sys
 
 from mmseg.apis import init_model, inference_model
 
@@ -23,6 +24,7 @@ parser.add_argument("--patch_size", type=int, default=2048)
 parser.add_argument("--stride", type=int, default=1024)
 
 if __name__=="__main__":
+    print(f"Running script: {sys.argv[0]} (PID: {os.getpid()})")
     args = parser.parse_args()
     print(args)
 

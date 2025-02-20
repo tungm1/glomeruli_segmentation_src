@@ -59,7 +59,7 @@ if __name__=="__main__":
     x_slide = int((W - args.patch_size) / args.stride) + 1
     y_slide = int((H - args.patch_size) / args.stride) + 1
 
-    pbar = tqdm(range(x_slide*y_slide), leave=True)
+    pbar = tqdm(range(x_slide*y_slide), leave=False)
     pbar.set_description(f'{wsi_name}')
 
     for xi in range(x_slide):

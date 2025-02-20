@@ -1,6 +1,5 @@
 import os
 from pathlib import Path
-import sys
 
 from mmseg.apis import init_model, inference_model
 
@@ -24,7 +23,6 @@ parser.add_argument("--patch_size", type=int, default=2048)
 parser.add_argument("--stride", type=int, default=1024)
 
 if __name__=="__main__":
-    print(f"Running script: {sys.argv[0]} (PID: {os.getpid()})")
     args = parser.parse_args()
     print(args)
 
@@ -59,7 +57,7 @@ if __name__=="__main__":
     x_slide = int((W - args.patch_size) / args.stride) + 1
     y_slide = int((H - args.patch_size) / args.stride) + 1
 
-    pbar = tqdm(range(x_slide*y_slide), leave=False)
+    pbar = tqdm(range(x_slide*y_slide), leave=True)
     pbar.set_description(f'{wsi_name}')
 
     for xi in range(x_slide):

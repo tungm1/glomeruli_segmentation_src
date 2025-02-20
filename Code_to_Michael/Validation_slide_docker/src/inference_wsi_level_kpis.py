@@ -25,7 +25,7 @@ parser.add_argument("--stride", type=int, default=1024)
 
 def mask_to_geojson(mask, output_geojson_path):
     """
-    Convert a binary mask to a GeoJSON file.
+    Convert a binary mask to a GeoJSON file with correctly closed polygons.
     
     Parameters:
     - mask: NumPy array of shape (H, W) with 0s and 1s
@@ -43,6 +43,10 @@ def mask_to_geojson(mask, output_geojson_path):
     for contour in contours:
         # Convert contour points to GeoJSON format (flip x and y for correct coordinates)
         coordinates = [[(float(x), float(y)) for [x, y] in contour[:, 0, :]]]
+
+        # Ensure the polygon is closed (first point == last point)
+        if coordinates[0][0] != coordinates[0][-1]:
+            coordinates[0].append(coordinates[0][0])
 
         feature = {
             "type": "Feature",
@@ -140,7 +144,7 @@ if __name__=="__main__":
     pred_seg = pred_seg.cpu().numpy()[0].astype(np.uint8)
 
     # Define output path
-    geojson_output_path = os.path.join(args.output, f"{wsi_name}_pred.geojson")
+    geojson_output_path = os.path.join(args.output, f"{wsi_name}.geojson")
 
     # Convert and save contours as GeoJSON
     mask_to_geojson(pred_seg, geojson_output_path)

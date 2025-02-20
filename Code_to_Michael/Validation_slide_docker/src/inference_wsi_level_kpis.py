@@ -11,6 +11,7 @@ import numpy as np
 import tifffile
 import scipy.ndimage
 
+import json
 import argparse
 
 parser = argparse.ArgumentParser()
@@ -21,6 +22,43 @@ parser.add_argument("--ckpt", type=str, help="checkpoint path")
 parser.add_argument("--output", type=str, help="output path")
 parser.add_argument("--patch_size", type=int, default=2048)
 parser.add_argument("--stride", type=int, default=1024)
+
+def mask_to_geojson(mask, output_geojson_path):
+    """
+    Convert a binary mask to a GeoJSON file.
+    
+    Parameters:
+    - mask: NumPy array of shape (H, W) with 0s and 1s
+    - output_geojson_path: Path to save the GeoJSON file
+    """
+    # Find contours in the binary mask
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    # Convert contours to GeoJSON format
+    geojson_data = {
+        "type": "FeatureCollection",
+        "features": []
+    }
+
+    for contour in contours:
+        # Convert contour points to GeoJSON format (flip x and y for correct coordinates)
+        coordinates = [[(float(x), float(y)) for [x, y] in contour[:, 0, :]]]
+
+        feature = {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": coordinates
+            },
+            "properties": {}  # Add metadata here if needed
+        }
+        geojson_data["features"].append(feature)
+
+    # Save as GeoJSON file
+    with open(output_geojson_path, 'w') as f:
+        json.dump(geojson_data, f, indent=4)
+
+    print(f"Saved GeoJSON to {output_geojson_path}")
 
 if __name__=="__main__":
     args = parser.parse_args()
@@ -100,6 +138,13 @@ if __name__=="__main__":
     # get the predicted mask
     _, pred_seg = pred_wsi_data.max(axis=0, keepdims=True)
     pred_seg = pred_seg.cpu().numpy()[0].astype(np.uint8)
+
+    # Define output path
+    geojson_output_path = os.path.join(args.output, f"{wsi_name}_pred.geojson")
+
+    # Convert and save contours as GeoJSON
+    mask_to_geojson(pred_seg, geojson_output_path)
+
 
     # Optionally save the predicted segmentation
     if args.output:

@@ -159,16 +159,10 @@ if __name__=="__main__":
     # Define output path
     geojson_output_path = os.path.join(args.output, f"{wsi_name}.geojson")
 
-    # Determine if downscaling was applied
-    if '/NEP25/' not in wsi_path:
-        scale_factor = lv  # If downscaled by lv=2, upscale by lv=2
-    else:
-        scale_factor = 1  # No scaling applied
-
     original_shape = tifffile.imread(wsi_path, key=0).shape[:2]  # (original_H, original_W)
 
     # Convert and save contours as GeoJSON
-    mask_to_geojson(pred_seg, geojson_output_path, original_shape, scale_factor)
+    mask_to_geojson(pred_seg, geojson_output_path, original_shape)
 
     # Optionally save the predicted segmentation
     if args.output:

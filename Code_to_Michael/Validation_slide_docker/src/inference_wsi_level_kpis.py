@@ -23,9 +23,7 @@ parser.add_argument("--output", type=str, help="output path")
 parser.add_argument("--patch_size", type=int, default=2048)
 parser.add_argument("--stride", type=int, default=1024)
 
-import json
-
-def mask_to_geojson(mask, output_geojson_path, original_shape, scale_factor):
+def mask_to_geojson(mask, output_geojson_path, original_shape, min_area=20000):
     """
     Convert a binary mask to a GeoJSON file with correctly closed polygons,
     ensuring that the coordinates match the original image resolution.
@@ -34,10 +32,11 @@ def mask_to_geojson(mask, output_geojson_path, original_shape, scale_factor):
     - mask: NumPy array of shape (H, W) with 0s and 1s (downscaled)
     - output_geojson_path: Path to save the GeoJSON file
     - original_shape: Tuple of (original_height, original_width) before downscaling
-    - scale_factor: Factor by which the image was downscaled
+    - min_area: Minimum contour area to keep (in original image pixel space)
     """
-    # Upscale the mask to match the original resolution
     original_h, original_w = original_shape
+
+    # Upscale the mask to match the original resolution
     upscaled_mask = cv2.resize(mask, (original_w, original_h), interpolation=cv2.INTER_NEAREST)
 
     # Find contours in the upscaled mask
@@ -50,6 +49,10 @@ def mask_to_geojson(mask, output_geojson_path, original_shape, scale_factor):
     }
 
     for contour in contours:
+        area = cv2.contourArea(contour)
+        if area < min_area:
+            continue  # Skip small contours
+
         # Convert contour points to GeoJSON format
         coordinates = [[(float(x), float(y)) for [x, y] in contour[:, 0, :]]]
 
@@ -63,7 +66,7 @@ def mask_to_geojson(mask, output_geojson_path, original_shape, scale_factor):
                 "type": "Polygon",
                 "coordinates": coordinates
             },
-            "properties": {}  # Add metadata if needed
+            "properties": {"area": area}  # Store contour area as metadata (optional)
         }
         geojson_data["features"].append(feature)
 
@@ -71,8 +74,7 @@ def mask_to_geojson(mask, output_geojson_path, original_shape, scale_factor):
     with open(output_geojson_path, 'w') as f:
         json.dump(geojson_data, f, indent=4)
 
-    print(f"Saved GeoJSON to {output_geojson_path}")
-
+    print(f"Saved GeoJSON to {output_geojson_path} with {len(geojson_data['features'])} filtered contours.")
 
 
 if __name__=="__main__":
